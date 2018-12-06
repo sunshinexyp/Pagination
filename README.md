@@ -6,5 +6,5 @@ thinkphp5实现可跳转的无刷新分页
 * 键盘enter可触发跳转
 ## Image Display
 网页界面图：
-https://github.com/sunshinexyp/Pagination/blob/master/display.png
+<img src="https://github.com/sunshinexyp/Pagination/blob/master/display.png">
 
