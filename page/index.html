@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.0/css/bootstrap.min.css">
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-3.3.1.min.js"></script>
+    <script src="http://cdn.bootcss.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="__STATIC__/css/caseApprecition.css">
+
+    <title>Ajax无刷新分页</title>
+
+</head>
+<body>
+<div class="caseTogether">
+    <h2>案例欣赏</h2>
+    <div class="jumbotron">
+        <div id="data-area">
+            <div class="casesContainer">
+
+
+            </div>
+        </div>
+    </div>
+</div>
+    <ul class="pagination" style="position: relative;left:28%;">
+
+    </ul>
+    <script>
+        (function(){
+                var varPage = 1;//当前页
+                var total = 1; //总记录条数
+                var pageNum = 1;//总页数
+                var $content = $(".casesContainer"); //内容展示块
+                var $link = $(".pagination");//分页链接块
+                requestData();
+
+                function requestData(){
+                $.ajax({
+                    type:"GET",
+                    url:"./page",
+                    data:{"page":varPage},
+                    dataType:"json",
+                    success:function(json){
+                        //从后台传来的数据格式是json字符串，还不是json对象，需要转成json对象
+                       // console.log(typeof (json));
+                        var data = JSON.parse(json);
+                        total = data.total;
+                        pageNum = data.pageNum;
+                        display(data.list,data.colum);
+                    },
+                    complete:function(){
+                        pageList();
+
+                    },
+                    error:function(){
+                        alert("请求参数错误！");
+                    }
+                });
+            }
+
+                function display(list,size){
+                    var html='';
+                    for(var i in list){
+                       if(list[i].id % size ==1){
+                        html += '<img src="'+list[i].img_url+'" alt="" class="casePiceures casePiceureOne">';
+                        }
+                        if(list[i].id % size ==2){
+                            html += '<img src="'+list[i].img_url+'" alt="" class="casePiceures casePiceureTwo">';
+                        }
+                        if(list[i].id % size ==3){
+                            html += '<img src="'+list[i].img_url+'" alt="" class="casePiceures casePiceureThree">';
+                        }
+                        if(list[i].id % size ==0){
+                            html += '<img src="'+list[i].img_url+'" alt="" class="casePiceures casePiceureFour">;'
+                        }
+                    }
+                    $content.html(html);
+                }
+
+                function pageList(){
+                    var i=1;
+                    var html='';
+                    html +=(varPage>1)?'<li><a href="#" data-page ="'+(varPage-1)+'">Previous</a></li>' :'<li><a href="#"  data-page ="1" class="disabled">Previous</a></li>';
+                    for(;i<=pageNum;i++){
+                        //使点击的页数变成active
+                            if(varPage == i){
+                                html += '<li class="active" ><a href="#" data-page ="'+(i)+'">'+i+'</a></li>';
+                            }else{
+
+                                html += '<li ><a href="#" data-page ="'+(i)+'">'+i+'</a></li>';
+                            }
+                    }
+
+                    html +='<span style="color: #428bca;">第&nbsp;</span>';
+                    html +='<li style="color: #428bca;"><input type="text" id="page_form" value="" style="width:25px;color: #428bca;text-align: center;" >&nbsp;页&nbsp;</li>';
+                    html +='<button  id="btn_go" type="button" class="btn btn-default btn-primary active" > GO</button>';
+
+                    html +='<li><a class="btn btn-default" href="#" role="button" data-page="1" style="color: #428bca;">首页</a></li>';
+                    html +='<li><a  id="btn-tail"  href="#" data-page ="'+pageNum+'"  style="color: #428bca;">尾页</a></li>';
+                    html +=(varPage<pageNum)?'<li><a href="#"  data-page ="'+(parseInt(varPage)+1)+'">Next</a></li>':'<li><a href="#"  data-page ="'+pageNum+'">Next</a></li>';
+                    html +='<span style="color: #007bff;">共' + total + '条，第' + varPage + '/' + pageNum + '页</span>';
+
+                    var $html =$(html);
+                    $html.find("a ").click(function (e) {
+                        e.preventDefault();//页面不会调转
+                        varPage = $(this).attr("data-page");
+                        $html.find("a ").removeClass('active');
+                        $(this).parent().addClass("active");
+                        requestData();
+
+                    });
+
+                          $link.html($html);
+                }
+
+                $("body").on('click','#btn_go',function (event) {
+                    var page = $("#page_form");
+                    if(page.val() == 0||page.val().length ==0 ){
+                        alert("您还没输入页数呢");
+                    }
+
+                    else if(page.val()>pageNum){
+                        varPage = page.val();
+                        alert("您输入的页数无法加载^-^");}
+                    else {
+                        varPage = page.val();
+                        requestData();
+                    }
+
+                });
+                //键盘enter方式
+            $(document).keyup(function(event){
+                if(event.keyCode ==13){
+                    $("#btn_go").trigger("click");
+                }
+            });
+
+        })();
+
+    </script>
+
+</body>
+</html>
